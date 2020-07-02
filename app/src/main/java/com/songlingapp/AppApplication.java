@@ -13,7 +13,7 @@ public class AppApplication {
     public static void main(String[] args)
     {
         SpringApplication.run(AppApplication.class, args);
-        log.info("智慧健康启动");
+        log.info("婚恋后台启动");
     }
 
 }
