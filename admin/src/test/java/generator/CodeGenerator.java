@@ -1,11 +1,9 @@
 package generator;
 import com.baomidou.mybatisplus.annotation.DbType;
 import com.baomidou.mybatisplus.generator.AutoGenerator;
-import com.baomidou.mybatisplus.generator.config.DataSourceConfig;
-import com.baomidou.mybatisplus.generator.config.GlobalConfig;
-import com.baomidou.mybatisplus.generator.config.PackageConfig;
-import com.baomidou.mybatisplus.generator.config.StrategyConfig;
+import com.baomidou.mybatisplus.generator.config.*;
 import com.baomidou.mybatisplus.generator.config.rules.NamingStrategy;
+
 
 public class CodeGenerator {
 
@@ -13,6 +11,7 @@ public class CodeGenerator {
     public static void main(String[] args) {//没日志不知道
         //创建代码生成器
         AutoGenerator mpg = new AutoGenerator();
+        mpg.setTemplate(templateGenerate());//自定义模板路径
         //全局配置
         GlobalConfig gc = new GlobalConfig();
         gc.setOpen(false);
@@ -32,7 +31,7 @@ public class CodeGenerator {
         DataSourceConfig dsc = new DataSourceConfig();
         dsc.setDbType(DbType.MYSQL);
         dsc.setDriverName("com.mysql.cj.jdbc.Driver");
-        dsc.setUrl("jdbc:mysql://114.67.233.191:3306/healthy_rest?useUnicode=true&characterEncoding=utf-8&serverTimezone=UTC");
+        dsc.setUrl("jdbc:mysql://114.67.233.191:3306/marry?useUnicode=true&characterEncoding=utf-8&serverTimezone=UTC");
         dsc.setUsername("root");
         dsc.setPassword("slroot");
         mpg.setDataSource(dsc);
@@ -40,6 +39,8 @@ public class CodeGenerator {
         StrategyConfig sc = new StrategyConfig();
         //sc.setTablePrefix("tab_"); //表名前缀
         //sc.setTablePrefix("house"); //表名前缀
+        sc.setInclude("car_number");
+
         //sc.setInclude("表名，多个英文逗号分割".split(","));
         sc.setNaming(NamingStrategy.underline_to_camel); //表名生成策略
         sc.setEntityBuilderModel(true);
@@ -57,6 +58,14 @@ public class CodeGenerator {
         mpg.setPackageInfo(pc);
 
         mpg.execute();
+    }
+
+
+    private static TemplateConfig templateGenerate(){
+        TemplateConfig templateConfig = new TemplateConfig()
+                .setController("/templates/controller.java")
+                ;
+        return templateConfig;
     }
 
 }
