@@ -9,7 +9,7 @@ ruoyi:
   # 实例演示开关
   demoEnabled: true
   # 文件路径 示例（ Windows配置D:/ruoyi/uploadPath，Linux配置 /home/ruoyi/uploadPath）
-  profile: D:/ruoyi/uploadPath
+  profile: /songling/car/uploadPath
   # 获取ip地址开关
   addressEnabled: false
 
@@ -57,7 +57,7 @@ spring:
   # redis 配置
   redis:
     # 地址
-    host: localhost
+    host: redishost
     # 端口，默认为6379
     port: 6379
     # 密码

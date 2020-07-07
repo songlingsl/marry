@@ -34,6 +34,7 @@ public class CarNumberController {
 
     @GetMapping("/number/list" )
     public TableDataInfo list( CarNumber carNumber,String validTime) {//有時間查詢直接用string，涉及到轉換太麻煩
+        System.out.println("热部署");
         Page<CarNumber> page = PageUtil.getPage();
         QueryWrapper<CarNumber> query = new QueryWrapper();
         query.like(carNumber.getCarNumber()!=null,"car_number",carNumber.getCarNumber());

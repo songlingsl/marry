@@ -46,7 +46,7 @@ public class ${table.controllerName} {
     }
 
     @PutMapping("/${lowerEntity}" )
-    public AjaxResult edit(@RequestBody ${entity} ${entity}){
+    public AjaxResult edit(@RequestBody ${entity} ${lowerEntity}){
         return AjaxResult.success(${lowerServiceName}.updateById(${lowerEntity}));
     }
 

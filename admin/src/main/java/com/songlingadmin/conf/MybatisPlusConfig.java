@@ -2,7 +2,9 @@ package com.songlingadmin.conf;
 
 import com.baomidou.mybatisplus.extension.plugins.PaginationInterceptor;
 import com.baomidou.mybatisplus.extension.plugins.pagination.optimize.JsqlParserCountOptimize;
+import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import org.mybatis.spring.annotation.MapperScan;
+import org.springframework.boot.autoconfigure.jackson.Jackson2ObjectMapperBuilderCustomizer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
@@ -23,4 +25,11 @@ public class MybatisPlusConfig {
         paginationInterceptor.setCountSqlParser(new JsqlParserCountOptimize(true));
         return paginationInterceptor;
     }
+//
+//    @Bean("jackson2ObjectMapperBuilderCustomizer")
+//    public Jackson2ObjectMapperBuilderCustomizer jackson2ObjectMapperBuilderCustomizer() {
+//        Jackson2ObjectMapperBuilderCustomizer customizer = jacksonObjectMapperBuilder -> jacksonObjectMapperBuilder.serializerByType(Long.class, ToStringSerializer.instance)
+//                .serializerByType(Long.TYPE, ToStringSerializer.instance);
+//        return customizer;
+//    }
 }

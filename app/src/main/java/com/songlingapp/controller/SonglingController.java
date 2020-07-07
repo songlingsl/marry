@@ -27,7 +27,7 @@ public class SonglingController {
     @GetMapping("/getId")
     public R getId(String userId){
         Songling sl=new Songling();
-        sl.setName("sllll");
+        sl.setName("sllll方法");
         songlingService.save(sl);
         return  R.  ok("基础测试"+sl.getId());
     }

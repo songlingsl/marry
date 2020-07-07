@@ -30,7 +30,7 @@ public class SonglingController {
     @GetMapping("/getId")
     public AjaxResult getId(String userId){
         Songling sl=new Songling();
-        sl.setName("sllll");
+        sl.setName("sllll订单");
         songlingService.save(sl);
         return AjaxResult.success("基础测试"+sl.getId());
 //        return AjaxResult.success("");
