@@ -78,7 +78,7 @@
           placeholder="请选择当前状态"
           clearable
           size="small"
-          style="width: 240px"
+
         >
           <el-option
             v-for="dict in   statusOptions"
@@ -89,6 +89,23 @@
         </el-select>
       </el-form-item>
 
+
+      <el-form-item label="12123" prop="importFlag">
+        <el-select
+          v-model="queryParams.importFlag"
+          placeholder="请选择当前状态"
+          clearable
+          size="small"
+
+        >
+          <el-option
+            v-for="dict in  importOptions"
+            :key="dict.dictValue"
+            :label="dict.dictLabel"
+            :value="dict.dictValue"
+          />
+        </el-select>
+      </el-form-item>
 
       <el-form-item>
 
@@ -115,7 +132,7 @@
 
           @click="handleAdd"
 
-          v-hasPermi="['system:subscribe:add']"
+
 
         >新增
         </el-button>
@@ -136,7 +153,7 @@
 
           @click="handleUpdate"
 
-          v-hasPermi="['system:subscribe:edit']"
+
 
         >修改
         </el-button>
@@ -157,7 +174,7 @@
 
           @click="handleDelete"
 
-          v-hasPermi="['system:subscribe:remove']"
+
 
         >删除
         </el-button>
@@ -174,9 +191,7 @@
 
           size="mini"
 
-          @click=""
-
-          v-hasPermi="['system:subscribe:export']"
+          @click="handleImport"
 
         >导入
         </el-button>
@@ -193,7 +208,7 @@
 
       <el-table-column label="车牌" align="center" prop="carNumber"/>
       <el-table-column label="预约码" align="center" prop="subscribeCode"/>
-      <el-table-column label="预约时间" align="center" prop="subscribeTime" width="180">
+      <el-table-column label="预约时间" align="center" prop="subscribeTime" width="100">
 
         <template slot-scope="scope">
 
@@ -204,13 +219,23 @@
       </el-table-column>
 
 
-      <el-table-column label="姓名" align="center" prop="subscribeName"/>
-      <el-table-column label="电话" align="center" prop="subscribePhone"/>
+      <el-table-column label="姓名" align="center" prop="subscribeName" width="100"/>
+      <el-table-column label="电话" align="center" prop="subscribePhone" width="120"/>
 
 <!--      <el-table-column label="当前状态" align="center" prop="subscribeStatus"/>-->
       <el-table-column prop="status" label="状态" :formatter="statusFormat" width="80"></el-table-column>
 
-      <el-table-column label="录入人" align="center" prop="sysUserId"/>
+      <el-table-column label="录入人" align="center" prop="sysNickName" width="100"/>
+      <el-table-column label="录入时间" align="center" prop="createTime" width="100">
+
+        <template slot-scope="scope">
+
+          <span>{{ parseTime(scope.row.createTime, '{y}-{m}-{d} {h}:{i}:{s}') }}</span>
+
+        </template>
+
+      </el-table-column>
+      <el-table-column prop="importFlag" label="12123" :formatter="importFormat" width="80" align="center"></el-table-column>
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
 
         <template slot-scope="scope">
@@ -225,7 +250,7 @@
 
             @click="handleUpdate(scope.row)"
 
-            v-hasPermi="['system:subscribe:edit']"
+
 
           >修改
           </el-button>
@@ -240,7 +265,6 @@
 
             @click="handleDelete(scope.row)"
 
-            v-hasPermi="['system:subscribe:remove']"
 
           >删除
           </el-button>
@@ -321,6 +345,37 @@
 
     </el-dialog>
 
+    <!-- 用户导入对话框 -->
+    <el-dialog :title="upload.title" :visible.sync="upload.open" width="400px" append-to-body>
+      <el-upload
+        ref="upload"
+        :limit="1"
+        accept=".xlsx, .xls"
+        :headers="upload.headers"
+        :action="upload.url + '?updateSupport=' + upload.updateSupport"
+        :disabled="upload.isUploading"
+        :on-progress="handleFileUploadProgress"
+        :on-success="handleFileSuccess"
+        :auto-upload="false"
+        drag
+      >
+        <i class="el-icon-upload"></i>
+        <div class="el-upload__text">
+          将文件拖到此处，或
+          <em>点击上传</em>
+        </div>
+                <div class="el-upload__tip" slot="tip">
+<!--                  <el-link type="info" style="font-size:12px" @click="importTemplate">下载模板</el-link>-->
+                  <a href="https://songling.oss-cn-beijing.aliyuncs.com/car/subscribe_template.xlsx">下载模板</a>
+                </div>
+        <div class="el-upload__tip" style="color:red" slot="tip">提示：仅允许导入“xls”或“xlsx”格式文件！</div>
+      </el-upload>
+      <div slot="footer" class="dialog-footer">
+        <el-button type="primary" @click="submitFileForm">确 定</el-button>
+        <el-button @click="upload.open = false">取 消</el-button>
+      </div>
+    </el-dialog>
+
   </div>
 
 </template>
@@ -328,8 +383,8 @@
 
 <script>
 
-  import {listSubscribe, getSubscribe, delSubscribe, addSubscribe, updateSubscribe} from "@/api/carsubscribe/subscribe";
-
+  import {listSubscribe, getSubscribe, delSubscribe, addSubscribe, updateSubscribe,importTemplate} from "@/api/carsubscribe/subscribe";
+  import { getToken } from "@/utils/auth";
 
   export default {
 
@@ -385,21 +440,35 @@
 
           subscribeCode: undefined,
 
-          sysUserId: undefined,
-
           subscribePhone: undefined,
 
           subscribeName: undefined,
 
           subscribeStatus: undefined,
 
-          subscribeTimePhase: undefined
+          subscribeTimePhase: undefined,
+          importFlag: undefined
 
+        },
+
+        upload: {
+          open: false,
+          title: "",
+          // 是否禁用上传
+          isUploading: false,
+          // 是否更新已经存在的用户数据
+          updateSupport: 0,
+          // 设置上传的请求头部
+          headers: { Authorization: "Bearer " + getToken() },
+          // 上传的地址
+          url: process.env.VUE_APP_BASE_API + "/car/carSubscribe/importData"
         },
         // 日期范围
         dateRange: [],
         // 表单参数
         statusOptions: [{dictValue:0,dictLabel:'正常'},{dictValue:1,dictLabel:'取消'}],
+
+        importOptions: [{dictValue:0,dictLabel:'否'},{dictValue:1,dictLabel:'是'}],
         form: {},
 
         // 表单校验
@@ -467,6 +536,13 @@
         }
         return this.selectDictLabel(this.statusOptions, row.subscribeStatus);
       },
+
+      importFormat(row, column) {
+        if (row.menuType == "F") {
+          return "";
+        }
+        return this.selectDictLabel(this.importOptions, row.importFlag);
+      },
       // 表单重置
 
       reset() {
@@ -483,7 +559,6 @@
 
           subscribeCode: undefined,
 
-          sysUserId: undefined,
 
           subscribePhone: undefined,
 
@@ -640,6 +715,33 @@
 
       },
 
+
+      handleImport() {
+        this.upload.title = "12123数据导入";
+        this.upload.open = true;
+      },
+      submitFileForm() {
+        this.$refs.upload.submit();
+      },
+
+      // 文件上传中处理
+      handleFileUploadProgress(event, file, fileList) {
+        this.upload.isUploading = true;
+      },
+      // 文件上传成功处理
+      handleFileSuccess(response, file, fileList) {
+        this.upload.open = false;
+        this.upload.isUploading = false;
+        this.$refs.upload.clearFiles();
+        this.$alert(response.msg, "导入结果", { dangerouslyUseHTMLString: true });
+        this.getList();
+      },
+      /** 下载模板操作 */
+      importTemplate() {
+        importTemplate().then(response => {
+          this.download(response.msg);
+        });
+      },
 
     }
 

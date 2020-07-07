@@ -1,17 +1,21 @@
 package com.songlingadmin.controller;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.ruoyi.common.utils.SecurityUtils;
 import com.ruoyi.common.utils.StringUtils;
+import com.ruoyi.common.utils.poi.ExcelUtil;
+import com.ruoyi.framework.security.LoginUser;
 import com.ruoyi.framework.web.domain.AjaxResult;
 import com.ruoyi.framework.web.page.TableDataInfo;
-import com.songlingadmin.entity.CarNumber;
 import com.songlingadmin.entity.CarSubscribe;
 import com.songlingadmin.service.CarSubscribeService;
 import com.songlingadmin.util.PageUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -39,6 +43,7 @@ public class CarSubscribeController {
         query.eq(carSubscribe.getSubscribeStatus()!=null,"subscribe_status",carSubscribe.getSubscribeStatus());
         query.ge(StringUtils.isNotEmpty(carSubscribe.getBeginTime()),"subscribe_time",carSubscribe.getBeginTime());
         query.le(StringUtils.isNotEmpty(carSubscribe.getEndTime()),"subscribe_time",carSubscribe.getEndTime());
+        query.eq(carSubscribe.getImportFlag()!=null,"import_flag",carSubscribe.getImportFlag());
         query.orderByDesc("create_time");
         carSubscribeService.page(page,query);
         return AjaxResult.toDataTable(page);
@@ -51,6 +56,10 @@ public class CarSubscribeController {
 
     @PostMapping("/carSubscribe" )
     public AjaxResult add(@RequestBody CarSubscribe carSubscribe){
+        LoginUser loginUser=SecurityUtils.getLoginUser();
+        carSubscribe.setSysUserId(loginUser.getUser().getUserId());
+       // carSubscribe.setSysNickName(loginUser.getUser().getNickName());
+        carSubscribe.setSysNickName(loginUser.getUsername());//用戶名不許修改，所以可以當做前面展示的人名
         return AjaxResult.success(carSubscribeService.save(carSubscribe));
     }
 
@@ -61,10 +70,43 @@ public class CarSubscribeController {
 
     @DeleteMapping("/carSubscribe/{ids}" )
     public AjaxResult remove(@PathVariable Long[]ids){
-        System.out.println("什么"+ids[0]);
         carSubscribeService.removeById(ids[0]);
         System.out.println(carSubscribeService.removeByIds(Arrays.asList(ids)));
         return AjaxResult.success(carSubscribeService.removeByIds(Arrays.asList(ids)));
     }
+
+    @PostMapping("/carSubscribe/importData" )
+    public AjaxResult importData(MultipartFile file, boolean updateSupport) throws Exception {
+        LoginUser loginUser=SecurityUtils.getLoginUser();
+        ExcelUtil<CarSubscribe> util = new ExcelUtil(CarSubscribe.class);
+        List<CarSubscribe> list = util.importExcel(file.getInputStream());
+        Iterator<CarSubscribe> it=list.iterator();
+        while(it.hasNext()){
+            CarSubscribe carSubscribe  = it.next();
+            Integer code=carSubscribe.getSubscribeCode();
+            CarSubscribe query=new CarSubscribe();
+            query.setSubscribeCode(code);
+            QueryWrapper<CarSubscribe> wrapper = new QueryWrapper(query);
+            if(carSubscribeService.list(wrapper).size()>0){
+                it.remove();
+            };
+
+        }
+        list.forEach(carSubscribe -> {
+            carSubscribe.setSysUserId(loginUser.getUser().getUserId());
+            carSubscribe.setSysNickName(loginUser.getUsername());
+            carSubscribe.setImportFlag(1);//12123导入
+        });
+        carSubscribeService.saveBatch(list);
+        return AjaxResult.success("保存成功" + list.size() + "条记录" );
+    }
+
+    @GetMapping("/carSubscribe//importTemplate")
+    public AjaxResult importTemplate()
+    {
+        ExcelUtil<CarSubscribe> util = new ExcelUtil(CarSubscribe.class);
+        return util.importTemplateExcel("检测预约");
+    }
+
 
 }

@@ -103,3 +103,11 @@ export function exportSubscribe(query) {
   })
 
 }
+
+// 下载用户导入模板
+export function importTemplate() {
+  return request({
+    url: '/car/carSubscribe/importTemplate',
+    method: 'get'
+  })
+}
