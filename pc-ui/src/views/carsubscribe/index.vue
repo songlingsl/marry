@@ -434,7 +434,7 @@
 
           pageSize: 10,
 
-          carNumber: undefined,
+          carNumber: '京',
 
           subscribeTime: undefined,
 
@@ -551,7 +551,7 @@
 
           subscribeId: undefined,
 
-          carNumber: undefined,
+          carNumber: '京',
 
           createTime: undefined,
 
