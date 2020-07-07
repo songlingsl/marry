@@ -7,7 +7,7 @@
       </router-link>
       <router-link v-else key="expand" class="sidebar-logo-link" to="/">
         <img v-if="logo" :src="logo" class="sidebar-logo">
-        <h1 class="sidebar-title">{{ title }} </h1>
+<!--        <h1 class="sidebar-title">{{ title }} </h1>-->
       </router-link>
     </transition>
   </div>
@@ -26,7 +26,7 @@ export default {
   },
   data() {
     return {
-      title: '后台管理系统',
+      title: '岳各庄检测场',
       logo: logoImg
     }
   }
@@ -57,10 +57,10 @@ export default {
     width: 100%;
 
     & .sidebar-logo {
-      width: 32px;
-      height: 32px;
+      width: 95%;
+      height: 80%;
       vertical-align: middle;
-      margin-right: 12px;
+      /*margin-right: 12px;*/
     }
 
     & .sidebar-title {
