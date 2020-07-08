@@ -60,7 +60,7 @@ public class CarSubscribe implements Serializable {
      * 预约码
      */
       @Excel(name = "预约码")
-      private Integer subscribeCode;
+      private Long subscribeCode;
 
       /**
      * 录入人

@@ -7,13 +7,19 @@ import com.ruoyi.common.utils.poi.ExcelUtil;
 import com.ruoyi.framework.security.LoginUser;
 import com.ruoyi.framework.web.domain.AjaxResult;
 import com.ruoyi.framework.web.page.TableDataInfo;
+
+
 import com.songlingadmin.entity.CarSubscribe;
+
+import com.songlingadmin.entity.CarSubscribeCode;
+import com.songlingadmin.mapper.CarSubscribeCodeMapper;
 import com.songlingadmin.service.CarSubscribeService;
 import com.songlingadmin.util.PageUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.annotation.Resource;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
@@ -32,6 +38,8 @@ public class CarSubscribeController {
 
     @Autowired
     private CarSubscribeService carSubscribeService;
+    @Autowired
+    private CarSubscribeCodeMapper mapper;
 
     @GetMapping("/carSubscribe/list" )
     public TableDataInfo list(CarSubscribe carSubscribe){//String validTime //有時間查詢直接用string，涉及到轉換太麻煩
@@ -56,9 +64,13 @@ public class CarSubscribeController {
 
     @PostMapping("/carSubscribe" )
     public AjaxResult add(@RequestBody CarSubscribe carSubscribe){
+        CarSubscribeCode code=new CarSubscribeCode();
+        code.setCodeStatus(0);
+        mapper.insert(code);
+
         LoginUser loginUser=SecurityUtils.getLoginUser();
         carSubscribe.setSysUserId(loginUser.getUser().getUserId());
-       // carSubscribe.setSysNickName(loginUser.getUser().getNickName());
+        carSubscribe.setSubscribeCode(code.getCodeId());
         carSubscribe.setSysNickName(loginUser.getUsername());//用戶名不許修改，所以可以當做前面展示的人名
         return AjaxResult.success(carSubscribeService.save(carSubscribe));
     }
@@ -83,7 +95,7 @@ public class CarSubscribeController {
         Iterator<CarSubscribe> it=list.iterator();
         while(it.hasNext()){
             CarSubscribe carSubscribe  = it.next();
-            Integer code=carSubscribe.getSubscribeCode();
+            Long code=carSubscribe.getSubscribeCode();
             CarSubscribe query=new CarSubscribe();
             query.setSubscribeCode(code);
             QueryWrapper<CarSubscribe> wrapper = new QueryWrapper(query);
