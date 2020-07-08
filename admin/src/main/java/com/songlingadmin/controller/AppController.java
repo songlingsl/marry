@@ -43,6 +43,6 @@ public class AppController {
 
         }
 
-        return AjaxResult.error("","未识别出");
+        return AjaxResult.error("","未识别出,请人工查询");
     }
 }
