@@ -4,7 +4,7 @@
 
     <el-form :model="queryParams" ref="queryForm" :inline="true" label-width="68px">
 
-      <el-form-item label="车牌" prop="carNumber">
+      <el-form-item label="预约号牌" prop="carNumber">
 
         <el-input
 
@@ -39,7 +39,7 @@
 
       </el-form-item>
 
-      <el-form-item label="预约时间">
+      <el-form-item label="预约日期">
         <el-date-picker
           v-model="dateRange"
           size="small"
@@ -53,7 +53,7 @@
       </el-form-item>
 
 
-      <el-form-item label="姓名" prop="subscribeName">
+      <el-form-item label="预约人" prop="subscribeName">
 
         <el-input
 
@@ -72,7 +72,7 @@
       </el-form-item>
 
 
-      <el-form-item label="当前状态" prop="subscribeStatus">
+      <el-form-item label="预约状态" prop="subscribeStatus">
         <el-select
           v-model="queryParams.subscribeStatus"
           placeholder="请选择当前状态"
@@ -206,9 +206,9 @@
       <el-table-column type="selection" width="55" align="center"/>
 
 
-      <el-table-column label="车牌" align="center" prop="carNumber"/>
+      <el-table-column label="预约号牌" align="center" prop="carNumber"/>
       <el-table-column label="预约码" align="center" prop="subscribeCode"/>
-      <el-table-column label="预约时间" align="center" prop="subscribeTime" width="100">
+      <el-table-column label="预约日期" align="center" prop="subscribeTime" width="100">
 
         <template slot-scope="scope">
 
@@ -219,11 +219,11 @@
       </el-table-column>
 
 
-      <el-table-column label="姓名" align="center" prop="subscribeName" width="100"/>
+      <el-table-column label="预约人" align="center" prop="subscribeName" width="100"/>
       <el-table-column label="电话" align="center" prop="subscribePhone" width="120"/>
 
 <!--      <el-table-column label="当前状态" align="center" prop="subscribeStatus"/>-->
-      <el-table-column prop="status" label="状态" :formatter="statusFormat" width="80"></el-table-column>
+      <el-table-column prop="status" label="预约状态" :formatter="statusFormat" width="80"></el-table-column>
 
       <el-table-column label="录入人" align="center" prop="sysNickName" width="100"/>
       <el-table-column label="录入时间" align="center" prop="createTime" width="100">
@@ -434,7 +434,7 @@
 
           pageSize: 10,
 
-          carNumber: '京',
+          carNumber: undefined,
 
           subscribeTime: undefined,
 

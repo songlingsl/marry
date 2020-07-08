@@ -93,6 +93,9 @@ public class CarSubscribeController {
 
         }
         list.forEach(carSubscribe -> {
+            if(carSubscribe.getStatus12123().equals("取消")){
+                carSubscribe.setSubscribeStatus(1);
+            };
             carSubscribe.setSysUserId(loginUser.getUser().getUserId());
             carSubscribe.setSysNickName(loginUser.getUsername());
             carSubscribe.setImportFlag(1);//12123导入

@@ -39,7 +39,7 @@ public class CarSubscribe implements Serializable {
       /**
      * 车牌
      */
-      @Excel(name = "车牌")
+      @Excel(name = "预约号牌")
       private String carNumber;
 
       /**
@@ -51,7 +51,7 @@ public class CarSubscribe implements Serializable {
       /**
      * 预约时间
      */
-      @Excel(name = "预约时间",dateFormat = "yyyy-MM-dd")
+      @Excel(name = "预约日期",dateFormat = "yyyy-MM-dd")
       @JsonFormat(pattern = "yyyy-MM-dd") //前台展示用的轉換
       @DateTimeFormat(pattern = "yyyy-MM-dd")//後台接前台時間的時候轉換
       private Date subscribeTime;
@@ -75,13 +75,12 @@ public class CarSubscribe implements Serializable {
       /**
      * 预约者电话
      */
-      @Excel(name = "电话")
       private String subscribePhone;
 
       /**
      * 预约者姓名
      */
-      @Excel(name = "姓名")
+      @Excel(name = "预约人")
       private String subscribeName;
 
       /**
@@ -92,11 +91,15 @@ public class CarSubscribe implements Serializable {
       /**
      * 预约时间段
      */
-      @Excel(name = "时间段")
+      @Excel(name = "预约时段")
       private String subscribeTimePhase;
 
 
       private Integer importFlag;
+  @Excel(name = "预约状态")
+  @TableField(exist = false)
+  private String status12123;
+
 
       /** 开始时间 */
       @JsonIgnore

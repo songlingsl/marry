@@ -13,5 +13,5 @@ EXPOSE 8001
 #传到工作目录中，如果不是本机docker，那么直接传到远程主机上
 ADD ./target/ruoyi-2.3.0.jar ./
 # Djava.security.egd=file:/dev/./urandom 解决阿里云的tomcat启动慢的问题
-CMD sleep 15;java -Djava.security.egd=file:/dev/./urandom -jar ruoyi-2.3.0.jar
+CMD sleep 5;java -Djava.security.egd=file:/dev/./urandom -jar ruoyi-2.3.0.jar
 #ENTRYPOINT ["java","-jar","/songling-0.0.1-SNAPSHOT.jar"]  效果与CMD类似，不可被 docker run 提供的参数覆盖
