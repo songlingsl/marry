@@ -32,7 +32,7 @@
           clearable
 
           size="small"
-
+          style="width: 150px"
           @keyup.enter.native="handleQuery"
 
         />
@@ -78,7 +78,7 @@
           placeholder="请选择当前状态"
           clearable
           size="small"
-
+          style="width: 150px"
         >
           <el-option
             v-for="dict in   statusOptions"
@@ -96,7 +96,7 @@
           placeholder="请选择当前状态"
           clearable
           size="small"
-
+          style="width: 150px"
         >
           <el-option
             v-for="dict in  importOptions"
@@ -181,29 +181,34 @@
 
       </el-col>
 
+
       <el-col :span="1.5">
-
         <el-button
-
-          type="warning"
-
-          icon="el-icon-download"
-
+          type="info"
+          icon="el-icon-upload2"
           size="mini"
-
           @click="handleImport"
 
-        >导入
-        </el-button>
-
+        >12123导入</el-button>
       </el-col>
+
+      <el-col :span="1.5">
+        <el-button
+          type="warning"
+          icon="el-icon-download"
+          size="mini"
+          @click="handleExport"
+
+        >导出</el-button>
+      </el-col>
+
 
     </el-row>
 
 
     <el-table v-loading="loading" :data="subscribeList" @selection-change="handleSelectionChange">
 
-      <el-table-column type="selection" width="55" align="center"/>
+      <el-table-column type="selection" width="20" align="center"/>
 
 
       <el-table-column label="预约号牌" align="center" prop="carNumber"/>
@@ -218,14 +223,15 @@
 
       </el-table-column>
 
-
-      <el-table-column label="预约人" align="center" prop="subscribeName" width="100"/>
-      <el-table-column label="电话" align="center" prop="subscribePhone" width="120"/>
+      <el-table-column label="预约时段" align="center" prop="subscribeTimePhase" width="100"/>
+      <el-table-column label="预约人" align="center" prop="subscribeName" width="80"/>
+      <el-table-column label="电话" align="center" prop="subscribePhone" width="110"/>
 
 <!--      <el-table-column label="当前状态" align="center" prop="subscribeStatus"/>-->
-      <el-table-column prop="status" label="预约状态" :formatter="statusFormat" width="80"></el-table-column>
+      <el-table-column prop="status" label="预约状态" :formatter="statusFormat" align="center" width="80"></el-table-column>
 
       <el-table-column label="录入人" align="center" prop="sysNickName" width="100"/>
+
       <el-table-column label="录入时间" align="center" prop="createTime" width="100">
 
         <template slot-scope="scope">
@@ -235,7 +241,7 @@
         </template>
 
       </el-table-column>
-      <el-table-column prop="importFlag" label="12123" :formatter="importFormat" width="80" align="center"></el-table-column>
+<!--      <el-table-column prop="importFlag" label="12123" :formatter="importFormat" width="80" align="center"></el-table-column>-->
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
 
         <template slot-scope="scope">
@@ -383,7 +389,7 @@
 
 <script>
 
-  import {listSubscribe, getSubscribe, delSubscribe, addSubscribe, updateSubscribe,importTemplate} from "@/api/carsubscribe/subscribe";
+  import {listSubscribe, getSubscribe, delSubscribe, addSubscribe, updateSubscribe,importTemplate,exportSubscribe} from "@/api/carsubscribe/subscribe";
   import { getToken } from "@/utils/auth";
 
   export default {
@@ -715,7 +721,18 @@
 
       },
 
-
+      handleExport(){
+        const queryParams = this.queryParams;
+        this.$confirm('是否确认导出预约数据项?', "警告", {
+          confirmButtonText: "确定",
+          cancelButtonText: "取消",
+          type: "warning"
+        }).then(function() {
+          return exportSubscribe(queryParams);
+        }).then(response => {
+          this.download(response.msg);
+        }).catch(function() {});
+      },
       handleImport() {
         this.upload.title = "12123数据导入";
         this.upload.open = true;

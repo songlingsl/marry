@@ -6,26 +6,31 @@ import com.songlingadmin.util.baidu.AccessToken;
 import com.songlingadmin.util.baidu.Base64Util;
 import com.songlingadmin.util.baidu.FileUtil;
 import com.songlingadmin.util.baidu.HttpUtil;
-import org.json.JSONObject;
+import org.apache.commons.lang3.time.DateFormatUtils;
+import org.apache.commons.lang3.time.DateUtils;
+
 import org.junit.Test;
 
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.URLEncoder;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.List;
-import java.util.Map;
+
 public class TestUnit {
 
     @Test
     public void abc() throws JsonProcessingException {
 
+//        System.out.println(DateUtils.addDays(new Date(),-10));
+        ;
+        System.out.println(  DateFormatUtils.format(DateUtils.addDays(new Date(),-10),"yyyy-MM-dd"));
+        System.out.println(  DateFormatUtils.format(DateUtils.addDays(new Date(),10),"yyyy-MM-dd"));
         System.out.println(34243);
 
     }

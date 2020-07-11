@@ -9,6 +9,7 @@ import com.ruoyi.framework.web.domain.AjaxResult;
 import com.ruoyi.framework.web.page.TableDataInfo;
 
 
+import com.ruoyi.project.system.domain.SysUser;
 import com.songlingadmin.entity.CarSubscribe;
 
 import com.songlingadmin.entity.CarSubscribeCode;
@@ -44,6 +45,19 @@ public class CarSubscribeController {
     @GetMapping("/carSubscribe/list" )
     public TableDataInfo list(CarSubscribe carSubscribe){//String validTime //有時間查詢直接用string，涉及到轉換太麻煩
         Page<CarSubscribe> page=PageUtil.getPage();
+        carSubscribeService.page(page,getQueryWrapper(carSubscribe));
+        return AjaxResult.toDataTable(page);
+    }
+
+    @GetMapping("/carSubscribe/export")
+    public AjaxResult export(CarSubscribe carSubscribe)
+    {
+        List<CarSubscribe> list=carSubscribeService.list(getQueryWrapper(carSubscribe));
+        ExcelUtil<CarSubscribe> util = new ExcelUtil(CarSubscribe.class);
+        return util.exportExcel(list, "预约数据");
+    }
+
+    private QueryWrapper getQueryWrapper(CarSubscribe carSubscribe){
         QueryWrapper<CarSubscribe> query = new QueryWrapper();
         query.like(carSubscribe.getCarNumber()!=null,"car_number",carSubscribe.getCarNumber());
         query.like(carSubscribe.getSubscribeName()!=null,"subscribe_name",carSubscribe.getSubscribeName());
@@ -53,8 +67,7 @@ public class CarSubscribeController {
         query.le(StringUtils.isNotEmpty(carSubscribe.getEndTime()),"subscribe_time",carSubscribe.getEndTime());
         query.eq(carSubscribe.getImportFlag()!=null,"import_flag",carSubscribe.getImportFlag());
         query.orderByDesc("create_time");
-        carSubscribeService.page(page,query);
-        return AjaxResult.toDataTable(page);
+        return query;
     }
 
     @GetMapping("/carSubscribe/{id}" )

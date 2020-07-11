@@ -1,11 +1,10 @@
 package com.songlingadmin.entity;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.io.Serializable;
 import java.util.Date;
 
-import com.baomidou.mybatisplus.annotation.IdType;
+import com.ruoyi.framework.aspectj.lang.annotation.Excel.Type;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -86,6 +85,7 @@ public class CarSubscribe implements Serializable {
       /**
      * 当前状态0,正常 1.取消
      */
+      @Excel(name = "预约状态" ,type= Type.EXPORT, readConverterExp = "0=正常,1=取消")
       private Integer subscribeStatus;
 
       /**
@@ -96,7 +96,7 @@ public class CarSubscribe implements Serializable {
 
 
       private Integer importFlag;
-  @Excel(name = "预约状态")
+  @Excel(name = "预约状态",type= Type.IMPORT)
   @TableField(exist = false)
   private String status12123;
 
@@ -110,4 +110,8 @@ public class CarSubscribe implements Serializable {
       @JsonIgnore
       @TableField(exist = false)
       private String endTime;
+
+     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+     @TableField(exist = false)
+     private LocalDateTime preTime;//前一次入场时间
 }
