@@ -16,12 +16,14 @@ import com.songlingadmin.entity.CarSubscribeCode;
 import com.songlingadmin.mapper.CarSubscribeCodeMapper;
 import com.songlingadmin.service.CarSubscribeService;
 import com.songlingadmin.util.PageUtil;
+import org.apache.commons.lang3.time.DateFormatUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
@@ -66,6 +68,7 @@ public class CarSubscribeController {
         query.ge(StringUtils.isNotEmpty(carSubscribe.getBeginTime()),"subscribe_time",carSubscribe.getBeginTime());
         query.le(StringUtils.isNotEmpty(carSubscribe.getEndTime()),"subscribe_time",carSubscribe.getEndTime());
         query.eq(carSubscribe.getImportFlag()!=null,"import_flag",carSubscribe.getImportFlag());
+        query.like(carSubscribe.getSysNickName()!=null,"sys_nick_name",carSubscribe.getSysNickName());
         query.orderByDesc("create_time");
         return query;
     }
@@ -136,5 +139,14 @@ public class CarSubscribeController {
         return util.importTemplateExcel("检测预约");
     }
 
+    @GetMapping("/carSubscribe/getTodaySubscribeSum/{time}" )
+    public AjaxResult getTodaySubscribeSum(@PathVariable("time" )String time)  {
+//        String today= DateFormatUtils.format(new Date(),"yyyy-MM-dd");
+        QueryWrapper<CarSubscribe> query = new QueryWrapper();
+        query.eq("subscribe_time",time);
+        query.eq("import_flag",0);
+        int  count= carSubscribeService.count(query);
+        return AjaxResult.success(count+"");
+    }
 
 }

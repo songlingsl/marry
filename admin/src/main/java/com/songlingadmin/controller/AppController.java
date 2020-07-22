@@ -2,6 +2,7 @@ package com.songlingadmin.controller;
 
 
 
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.ruoyi.common.utils.SecurityUtils;
@@ -26,9 +27,13 @@ import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.io.File;
+import java.io.IOException;
 import java.net.URLEncoder;
 import java.time.LocalDateTime;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 
 @Slf4j
@@ -61,6 +66,7 @@ public class AppController {
             jsonObject = jsonObject.getJSONObject("words_result");
             if (jsonObject != null) {
                 number = jsonObject.getString("number");
+                threadSaveImage( file,number);
                 CarSubscribe carSubscribe=getCarSubscribeByNumber(number);
                 if(carSubscribe==null){
                     return AjaxResult.error(number+" 未预约",null);
@@ -80,6 +86,21 @@ public class AppController {
         return AjaxResult.error("未识别出该车牌,请手工查询",null);
     }
 
+    private void threadSaveImage(final MultipartFile source,final  String number){
+        new Thread(){
+            @Override
+            public void run(){
+                File file=new File("/songling/car/images/"+number+".jpg");
+                try {
+                    source.transferTo(file);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+            }
+
+        }.start();
+    }
     private CarSubscribe getCarSubscribeByNumber(String number){
         String preTime=DateFormatUtils.format(DateUtils.addDays(new Date(),-185),"yyyy-MM-dd");//提前预约时间半年来检查
         String afterTime=DateFormatUtils.format(DateUtils.addDays(new Date(),185),"yyyy-MM-dd");//预约时间后半年来检查
@@ -194,6 +215,89 @@ public class AppController {
         LocalDateTime historyTime=getPreTime(carSubscribe.getSubscribeId());
         carSubscribe.setPreTime(historyTime);//上次入场时间
         return AjaxResult.success("",carSubscribe);
+    }
+    @PostMapping("/carnumber/importJiaoguan" )
+    public AjaxResult inputSubscribe(@RequestBody List<CarSubscribe> list)  {
+          log.info("1拿到"+list);
+        Iterator<CarSubscribe> it=list.iterator();
+        while(it.hasNext()){
+            CarSubscribe carSubscribe  = it.next();
+            Long code=carSubscribe.getSubscribeCode();
+            CarSubscribe query=new CarSubscribe();
+            query.setSubscribeCode(code);
+            QueryWrapper<CarSubscribe> wrapper = new QueryWrapper(query);
+            if(carSubscribeService.list(wrapper).size()>0){
+                it.remove();
+            };
+        }
+        log.info("过滤后数量"+list.size());
+        carSubscribeService.saveBatch(list);
+          return AjaxResult.success("保存成功" + list.size() + "条记录" );
+    }
+
+
+
+    @PostMapping("/carnumber/uploadLocalPhoto" )
+    public AjaxResult uploadLocalPhoto(MultipartFile file)  {
+        String param ="";
+        try {
+            String url = "http://127.0.0.1:8888/uploader";
+            String imgStr= Base64Util.encode(file.getBytes());
+            String imgParam = URLEncoder.encode(imgStr, "UTF-8");
+            param = "image=" + imgParam;
+            String result = HttpUtil.post(url, "", param);
+            JSONArray jarray =  JSONArray.parseArray(result);
+            JSONObject jo=jarray.getJSONObject(0);
+            String number=jo.getString("Name");
+            log.info("本地识别结果" + number);
+            CarSubscribe carSubscribe=getCarSubscribeByNumber(number);
+            if(carSubscribe==null){
+                return baiduai(param);
+            }
+            if(carSubscribe.getSubscribeStatus()==1){
+                return AjaxResult.error(number+"取消了预约(预约人："+carSubscribe.getSubscribeName()+"；预约时间："+ org.apache.commons.lang.time.DateFormatUtils.format(carSubscribe.getSubscribeTime(),"yyyy-MM-dd") +")",null);
+            }
+            LocalDateTime preTime=getPreTime(carSubscribe.getSubscribeId());
+            carSubscribe.setPreTime(preTime);//上次入场时间
+            return AjaxResult.success("",carSubscribe);
+        }catch(Exception e){
+            return baiduai(param);
+
+        }
+    }
+
+    public AjaxResult baiduai(String param)  {
+        try {
+            String url = "https://aip.baidubce.com/rest/2.0/ocr/v1/license_plate";
+//           String imgStr = Base64Util.encode(file.getBytes());
+//            String imgParam = URLEncoder.encode(imgStr, "UTF-8");
+//            String param = "image=" + imgParam;
+            // 注意这里仅为了简化编码每一次请求都去获取access_token，线上环境access_token有过期时间， 客户端可自行缓存，过期后重新获取。
+            String accessToken = AccessToken.get();
+            String result = HttpUtil.post(url, accessToken, param);
+            log.info("baidu识别结果" + result);
+            String number = "";
+            JSONObject jsonObject = JSONObject.parseObject(result);
+            jsonObject = jsonObject.getJSONObject("words_result");
+            if (jsonObject != null) {
+                number = jsonObject.getString("number");
+                CarSubscribe carSubscribe=getCarSubscribeByNumber(number);
+                if(carSubscribe==null){
+                    return AjaxResult.error(number+" 未预约",null);
+                }
+                if(carSubscribe.getSubscribeStatus()==1){
+                    return AjaxResult.error(number+"取消了预约(预约人："+carSubscribe.getSubscribeName()+"；预约时间："+ org.apache.commons.lang.time.DateFormatUtils.format(carSubscribe.getSubscribeTime(),"yyyy-MM-dd") +")",null);
+                }
+                LocalDateTime preTime=getPreTime(carSubscribe.getSubscribeId());
+                carSubscribe.setPreTime(preTime);//上次入场时间
+                return AjaxResult.success("",carSubscribe);
+            }
+        }catch(Exception e){
+            return  AjaxResult.error(e.getMessage(),null);
+
+        }
+
+        return AjaxResult.error("未识别出该车牌,请手工查询",null);
     }
 
 

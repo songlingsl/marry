@@ -111,3 +111,11 @@ export function importTemplate() {
     method: 'get'
   })
 }
+
+export function getTodaySubscribeSum(time) {
+  return request({
+    url: '/car/carSubscribe/getTodaySubscribeSum/'+ time,
+    method: 'get'
+  })
+}
+

@@ -31,7 +31,7 @@ public class CodeGenerator {
         DataSourceConfig dsc = new DataSourceConfig();
         dsc.setDbType(DbType.MYSQL);
         dsc.setDriverName("com.mysql.cj.jdbc.Driver");
-        dsc.setUrl("jdbc:mysql://114.67.233.191:3306/marry?useUnicode=true&characterEncoding=utf-8&serverTimezone=UTC");
+        dsc.setUrl("jdbc:mysql://XXX:3306/marry?useUnicode=true&characterEncoding=utf-8&serverTimezone=UTC");
         dsc.setUsername("root");
         dsc.setPassword("slroot");
         mpg.setDataSource(dsc);
@@ -39,7 +39,7 @@ public class CodeGenerator {
         StrategyConfig sc = new StrategyConfig();
         //sc.setTablePrefix("tab_"); //表名前缀
         //sc.setTablePrefix("house"); //表名前缀
-        sc.setInclude("car_recorder");
+        sc.setInclude("marry_activity");
         //sc.setInclude("表名，多个英文逗号分割".split(","));
         sc.setNaming(NamingStrategy.underline_to_camel); //表名生成策略
         sc.setEntityBuilderModel(true);

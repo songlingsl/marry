@@ -96,7 +96,7 @@
           placeholder="请选择当前状态"
           clearable
           size="small"
-          style="width: 150px"
+          style="width: 240px"
         >
           <el-option
             v-for="dict in  importOptions"
@@ -106,6 +106,38 @@
           />
         </el-select>
       </el-form-item>
+
+
+      <el-form-item label="录入人" prop="sysNickName">
+
+        <el-input
+
+          v-model="queryParams.sysNickName"
+
+          placeholder="请输入录入人"
+
+          clearable
+
+          size="small"
+
+          @keyup.enter.native="handleQuery"
+
+        />
+
+      </el-form-item>
+
+
+      <el-form-item  >
+
+        <el-input type="hidden"
+
+                   style="width: 240px"
+
+        />
+
+      </el-form-item>
+
+
 
       <el-form-item>
 
@@ -301,7 +333,10 @@
 
     <el-dialog :title="title" :visible.sync="open" width="500px" append-to-body>
 
-      <el-form ref="form" :model="form" :rules="rules" label-width="80px">
+      <el-form ref="form" :model="form" :rules="rules" label-width="100px">
+
+
+
 
         <el-form-item label="车牌" prop="carNumber">
 
@@ -319,10 +354,33 @@
 
                           value-format="yyyy-MM-dd"
 
-                          placeholder="选择预约时间">
+                          placeholder="选择预约时间"
+                          @change="subscribeSum"
+
+          >
 
           </el-date-picker>
+          <el-col  v-show="showTodaySubscribeSum" >该日已电话预约{{todaySubscribeSum}}人</el-col>
 
+
+        </el-form-item>
+
+<!--        <el-form-item    label="今电话预约" prop="4"   v-show="showTodaySubscribeSum"   >-->
+
+<!--          <el-col>{{todaySubscribeSum}}人</el-col>-->
+<!--        </el-form-item>-->
+
+
+        <el-form-item label="预约时段">
+          <el-select v-model="form.subscribeTimePhase" placeholder="请选择">
+            <el-option
+              v-for="dict in timePhases"
+              :key="dict.dictValue"
+              :label="dict.dictLabel"
+              :value="dict.dictValue"
+
+            ></el-option>
+          </el-select>
         </el-form-item>
 
 
@@ -389,7 +447,7 @@
 
 <script>
 
-  import {listSubscribe, getSubscribe, delSubscribe, addSubscribe, updateSubscribe,importTemplate,exportSubscribe} from "@/api/carsubscribe/subscribe";
+  import {listSubscribe, getSubscribe, delSubscribe, addSubscribe, updateSubscribe,importTemplate,exportSubscribe,getTodaySubscribeSum} from "@/api/carsubscribe/subscribe";
   import { getToken } from "@/utils/auth";
 
   export default {
@@ -453,7 +511,8 @@
           subscribeStatus: undefined,
 
           subscribeTimePhase: undefined,
-          importFlag: undefined
+          importFlag: undefined,
+          sysNickName:undefined
 
         },
 
@@ -475,8 +534,10 @@
         statusOptions: [{dictValue:0,dictLabel:'正常'},{dictValue:1,dictLabel:'取消'}],
 
         importOptions: [{dictValue:0,dictLabel:'否'},{dictValue:1,dictLabel:'是'}],
+        timePhases:[{dictValue:'08:00--09:00',dictLabel:'08:00--09:00'},{dictValue:'09:00--10:00',dictLabel:'09:00--10:00'},{dictValue:'10:00--11:00',dictLabel:'10:00--11:00'},{dictValue:'13:00--14:00',dictLabel:'13:00--14:00'},{dictValue:'14:00--15:00',dictLabel:'14:00--15:00'},{dictValue:'15:00--16:00',dictLabel:'15:00--16:00'},{dictValue:'16:00--17:00',dictLabel:'16:00--17:00'}],
         form: {},
-
+        showTodaySubscribeSum:false,
+        todaySubscribeSum:0,
         // 表单校验
 
         rules: {
@@ -515,7 +576,16 @@
 
     methods: {
 
+      subscribeSum(e){
+        console.log("值",e)
+        this.showTodaySubscribeSum = true;
+        getTodaySubscribeSum(e).then(response => {//今天所有电话预约数量
+          console.log("获取中", response)
 
+          this.todaySubscribeSum =response.msg;
+
+        });
+      },
       getList() {
 
         this.loading = true;
@@ -536,7 +606,7 @@
       cancel() {
 
         this.open = false;
-
+        this.showTodaySubscribeSum=false
         this.reset();
 
       },
@@ -576,7 +646,7 @@
 
           subscribeStatus: "0",
 
-          subscribeTimePhase: undefined
+          subscribeTimePhase: '16:00--17:00',
 
         };
 
@@ -622,17 +692,19 @@
         this.reset();
 
         this.open = true;
-
+        this.showTodaySubscribeSum=false
         this.title = "添加【检测预约信息】";
 
       },
+
+
 
       /** 修改按钮操作 */
 
       handleUpdate(row) {
 
         this.reset();
-
+        this.showTodaySubscribeSum=false
         const subscribeId = row.subscribeId || this.ids
 
         getSubscribe(subscribeId).then(response => {
@@ -640,7 +712,7 @@
           this.form = response.data;
 
           this.open = true;
-
+          this.showTodaySubscribeSum = false;
           this.title = "修改【检测预约信息】";
 
         });
@@ -664,7 +736,7 @@
                   this.msgSuccess("修改成功");
 
                   this.open = false;
-
+                  this.showTodaySubscribeSum = false;
                   this.getList();
 
                 }
@@ -680,7 +752,7 @@
                   this.msgSuccess("新增成功");
 
                   this.open = false;
-
+                  this.showTodaySubscribeSum = false;
                   this.getList();
 
                 }
