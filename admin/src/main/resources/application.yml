@@ -16,7 +16,7 @@ ruoyi:
 # 开发环境配置
 server:
   # 服务器的HTTP端口，默认为8080
-  port: 8080
+  port: 8888
   servlet:
     # 应用的访问路径
     context-path: /
@@ -28,11 +28,7 @@ server:
     # Tomcat启动初始化的线程数，默认值25
     min-spare-threads: 30
 
-# 日志配置
-logging:
-  level:
-    com.ruoyi: debug
-    org.springframework: warn
+
 
 # Spring配置
 spring:
@@ -61,7 +57,7 @@ spring:
     # 端口，默认为6379
     port: 6379
     # 密码
-    password: 
+    password: 12345678
     # 连接超时时间
     timeout: 10s
     lettuce:
@@ -134,7 +130,18 @@ mybatis-plus:
   # 配置mapper的扫描，找到所有的mapper.xml映射文件
   mapperLocations: classpath*:mybatis/**/*Mapper.xml
   # 加载全局的配置文件
-  configLocation: classpath:mybatis/mybatis-config.xml
+  configLocation:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
   global-config:
     db-config:
       id-type: assign_id #自3.3.0开始,entity的id默认使用雪花算法+UUID
+
+logging:  #默认都是logback需要参数
+  level:
+    root: info  #开发debug
+  file:
+    max-size: 50MB #每50m 生成一个新日志
+    path: ./logs
+  pattern:      #用%replace(%caller{1}，控制台显示在开发时更方便,
+    console: "%d{yyyy/MM/dd-HH:mm:ss} [%thread] %-5level - %msg -[%replace(%caller{1}){'\t|Caller.{1}0| at|\r\n', ''}]%n"
+    file: "%d{yyyy/MM/dd-HH:mm:ss} [%thread] %-5level- %msg -%logger%n" #显示行数 方法名会影响性能，caller也会影响，直接用logger

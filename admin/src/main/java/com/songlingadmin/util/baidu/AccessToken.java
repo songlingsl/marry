@@ -10,8 +10,8 @@ import java.util.List;
 import java.util.Map;
 
 public class AccessToken {
-    static  String  API_KEY = "Wnwp0Xqc9";
-    static String  SECRET_KEY = "4e4CNISECw3pb";
+    static  String  API_KEY = "WfYx9sjYhE7OxBvvnwp0Xqc9";
+    static String  SECRET_KEY = "4e4CBvN6qHO6RLHIvBMOooCNISECw3pb";
 
 
     public static String get(){

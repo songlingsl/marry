@@ -338,7 +338,9 @@ export default {
     },
     /** 查询菜单树结构 */
     getMenuTreeselect() {
+
       menuTreeselect().then(response => {
+        console.log('获取的树',response.data)
         this.menuOptions = response.data;
       });
     },
@@ -368,7 +370,9 @@ export default {
     },
     /** 根据角色ID查询菜单树结构 */
     getRoleMenuTreeselect(roleId) {
+
       roleMenuTreeselect(roleId).then(response => {
+        console.log('获取的树',response.menus)
         this.menuOptions = response.menus;
         this.$refs.menu.setCheckedKeys(response.checkedKeys);
       });

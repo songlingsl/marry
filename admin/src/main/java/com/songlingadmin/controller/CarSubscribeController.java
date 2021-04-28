@@ -18,6 +18,7 @@ import com.songlingadmin.service.CarSubscribeService;
 import com.songlingadmin.util.PageUtil;
 import org.apache.commons.lang3.time.DateFormatUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -92,6 +93,7 @@ public class CarSubscribeController {
     }
 
     @PutMapping("/carSubscribe" )
+    @PreAuthorize("@ss.hasPermi('car:subscribe:control')")
     public AjaxResult edit(@RequestBody CarSubscribe carSubscribe){
         return AjaxResult.success(carSubscribeService.updateById(carSubscribe));
     }
